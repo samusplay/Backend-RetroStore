@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getDatabaseConfig } from './config/database.config';
 import { ProductsModule } from './products/products.module';
+import { AuthModule } from './auth/auth.module';
 
 
 @Module({
@@ -17,6 +18,7 @@ import { ProductsModule } from './products/products.module';
       useFactory:(configService:ConfigService)=>getDatabaseConfig(configService)
     }),
     ProductsModule,
+    AuthModule,
    
   ],
   controllers: [],
