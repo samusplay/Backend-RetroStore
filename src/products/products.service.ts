@@ -32,7 +32,7 @@ export class ProductsService {
         const imageUrl = await this.cloudinaryUtil.uploadImage(image, 'products');
 
         // 3. Generamos trivia
-        const trivia = await this.wikipediaUtil.getTrivia(createProductDto.name, createProductDto.platform);
+        const trivia = await this.wikipediaUtil.getTrivia(createProductDto.name, createProductDto.platform,createProductDto.category);
 
         // 4. Guardamos en DB con el seller completo
         const product = await this.productsRepository.createProduct(
