@@ -1,5 +1,6 @@
 import {
   Body, Controller, Get, Param, Post,
+  Query,
   UploadedFile, UseGuards, UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -31,8 +32,8 @@ export class ProductsController {
   }
 
   @Get()
-  async findAll(): Promise<ProductCatalogResponseDto[]> {
-    return await this.productsService.findAll();
+  async findAll(@Query('category') category?: string): Promise<ProductCatalogResponseDto[]> {
+    return await this.productsService.findAll(category);
   }
 
   @Get(':id')

@@ -49,10 +49,9 @@ export class ProductsService {
     }
 
     //traemos todos los productos
-    async findAll(): Promise<ProductCatalogResponseDto[]> {
-        return await this.productsRepository.findAllProducts();
+    async findAll(category?: string): Promise<ProductCatalogResponseDto[]> {
+        return await this.productsRepository.findAllProducts(category);
     }
-
     async findById(id: string): Promise<ProductDetailResponseDto> {
         const product = await this.productsRepository.findById(id);
         if (!product) {

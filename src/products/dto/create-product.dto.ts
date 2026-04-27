@@ -1,5 +1,5 @@
 import z from "zod";
-import { Condition } from "../entities/product.entity";
+import { Category, Condition } from "../entities/product.entity";
 
 export const createProductSchema = z.object({
   name: z.string({ error: 'El nombre del producto es obligatorio' })
@@ -19,6 +19,8 @@ export const createProductSchema = z.object({
   platform: z.string().min(1, 'La plataforma es obligatoria'),
 
   condition: z.enum(Object.values(Condition) as [string, ...string[]]),
+
+  category: z.enum(Object.values(Category) as [string, ...string[]]),
 });
 
 //inferimos el type

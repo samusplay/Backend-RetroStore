@@ -1,4 +1,4 @@
-//import { User } from '@/users/entities/user.entity';
+
 import { User } from '@/auth/entities/user.entity';
 import {
     Column,
@@ -12,6 +12,13 @@ import {
 export enum Condition {
   NUEVO = 'NUEVO',
   USADO = 'USADO',
+}
+
+// Nueva categoría para manejar todos los tipos de productos
+export enum Category {
+  VIDEOJUEGO = 'VIDEOJUEGO',
+  VINILO = 'VINILO',
+  ROPA = 'ROPA',
 }
 
 @Entity('products')
@@ -37,13 +44,16 @@ export class Product {
   @Column({ type: 'enum', enum: Condition, default: Condition.USADO })
   condition!: Condition;
 
+  // Nueva columna de categoría
+  @Column({ type: 'enum', enum: Category, default: Category.VIDEOJUEGO })
+  category!: Category;
+
   @Column({ type: 'varchar', nullable: true })
   imageUrl?: string;
 
   @Column({ type: 'text', nullable: true })
   trivia?: string;
 
-  //vinculamos al usuario
   @ManyToOne(() => User, { eager: true })
   seller!: User;
 

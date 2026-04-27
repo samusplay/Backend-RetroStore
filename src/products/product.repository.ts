@@ -4,7 +4,7 @@ import { Repository } from "typeorm";
 import { User } from "../auth/entities/user.entity";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { ProductCatalogResponseDto, ProductDetailResponseDto } from "./dto/product.response";
-import { Condition, Product } from "./entities/product.entity";
+import { Category, Condition, Product } from "./entities/product.entity";
 
 @Injectable()
 export class ProductRepository {
@@ -23,6 +23,7 @@ export class ProductRepository {
             const product = this.repository.create({
                 ...createProductDto,
                 condition: createProductDto.condition as Condition,
+                category: createProductDto.category as Category,
                 imageUrl,
                 trivia,
                 seller,
@@ -36,8 +37,8 @@ export class ProductRepository {
         }
     }
 
-    async findAllProducts(): Promise<ProductCatalogResponseDto[]> {
-        const products = await this.repository
+    async findAllProducts(category?: string): Promise<ProductCatalogResponseDto[]> {
+        const query = this.repository
             .createQueryBuilder('product')
             .leftJoin('product.seller', 'seller')
             .select([
@@ -46,8 +47,14 @@ export class ProductRepository {
                 'product.imageUrl',
                 'product.price',
                 'seller.username',
-            ])
-            .getMany();
+            ]);
+
+        // Si viene categoría la aplicamos como filtro
+        if (category) {
+            query.where('product.category = :category', { category });
+        }
+
+        const products = await query.getMany();
 
         return products.map(p => ({
             id: p.id,
