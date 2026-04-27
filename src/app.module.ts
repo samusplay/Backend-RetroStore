@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { getDatabaseConfig } from './config/database.config';
 import { ProductsModule } from './products/products.module';
 import { AuthModule } from './auth/auth.module';
+import { CollectionModule } from './collection/collection.module';
 
 
 @Module({
@@ -19,6 +20,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     ProductsModule,
     AuthModule,
+    CollectionModule,
    
   ],
   controllers: [],
