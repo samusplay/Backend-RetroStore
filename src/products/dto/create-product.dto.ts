@@ -1,27 +1,26 @@
-import { z } from 'zod';
+import z from "zod";
+import { Condition } from "../entities/product.entity";
 
 export const createProductSchema = z.object({
-    //con z string validamos campos gracias a zod
-    name: z.string({
-        error: 'El nombre del producto es obligatorio'
-    })
-        .min(2, 'El nombre debe tener al menos 2 caracteres')
-        .max(150, 'El nombre es demasiado largo'),
-    code: z.string({
-        error: 'La descripción es obligatoria',
-    })
-        .min(5, 'La descripción es muy corta, añade más detalles'),
+  name: z.string({ error: 'El nombre del producto es obligatorio' })
+    .min(2, 'El nombre debe tener al menos 2 caracteres')
+    .max(150, 'El nombre es demasiado largo'),
 
-    description: z.string()
-        .min(5, 'La descripción debe ser más detallada')
-        .max(1000),
+  code: z.string({ error: 'El código es obligatorio' })
+    .min(2, 'El código es muy corto'),
 
-    price: z.number({
-        error: 'El precio es obligatorio y debe ser un número',
-    })
-        .positive('El precio debe ser mayor a cero'),
-    imageId: z.string().optional()
+  description: z.string()
+    .min(5, 'La descripción debe ser más detallada')
+    .max(1000),
+
+  price: z.coerce.number({ error: 'El precio es obligatorio y debe ser un número' })
+    .positive('El precio debe ser mayor a cero'),
+
+  platform: z.string().min(1, 'La plataforma es obligatoria'),
+
+  condition: z.enum(Object.values(Condition) as [string, ...string[]]),
 });
 
-//exportamos el type
-export type CreateProductDto = z.infer<typeof createProductSchema>
+//inferimos el type
+export type CreateProductDto = z.infer<typeof createProductSchema>;
+
