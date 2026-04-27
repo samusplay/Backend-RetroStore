@@ -1,5 +1,5 @@
 import {
-  Body, Controller, Get, Post,
+  Body, Controller, Get, Param, Post,
   UploadedFile, UseGuards, UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -10,6 +10,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { ZodValidationPipe } from '../lib/pipes/zod-validation.pipe';
 import { createProductSchema, type CreateProductDto } from './dto/create-product.dto';
 import type { CreateProductResponseDto } from './dto/create-response';
+import { ProductCatalogResponseDto, ProductDetailResponseDto } from './dto/product.response';
 import { ProductsService } from './products.service';
 
 @Controller('products')
@@ -30,7 +31,13 @@ export class ProductsController {
   }
 
   @Get()
-  async findAll() {
+  async findAll(): Promise<ProductCatalogResponseDto[]> {
     return await this.productsService.findAll();
   }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<ProductDetailResponseDto> {
+    return await this.productsService.findById(id);
+  }
+
 }

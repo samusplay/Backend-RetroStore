@@ -3,39 +3,86 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "../auth/entities/user.entity";
 import { CreateProductDto } from "./dto/create-product.dto";
+import { ProductCatalogResponseDto, ProductDetailResponseDto } from "./dto/product.response";
 import { Condition, Product } from "./entities/product.entity";
 
 @Injectable()
 export class ProductRepository {
-  constructor(
-    @InjectRepository(Product)
-    private readonly repository: Repository<Product>
-  ) {}
+    constructor(
+        @InjectRepository(Product)
+        private readonly repository: Repository<Product>
+    ) { }
 
-  async createProduct(
-    createProductDto: CreateProductDto,
-    imageUrl: string,
-    trivia: string,
-    seller: User,
-  ): Promise<Product> {
-    try {
-      const product = this.repository.create({
-        ...createProductDto,
-        condition: createProductDto.condition as Condition,
-        imageUrl,
-        trivia,
-        seller,
-      });
-      return await this.repository.save(product);
-    } catch (error: any) {
-      if (error.code === '23505') {
-        throw new BadRequestException('El código del producto ya existe');
-      }
-      throw error;
+    async createProduct(
+        createProductDto: CreateProductDto,
+        imageUrl: string,
+        trivia: string,
+        seller: User,
+    ): Promise<Product> {
+        try {
+            const product = this.repository.create({
+                ...createProductDto,
+                condition: createProductDto.condition as Condition,
+                imageUrl,
+                trivia,
+                seller,
+            });
+            return await this.repository.save(product);
+        } catch (error: any) {
+            if (error.code === '23505') {
+                throw new BadRequestException('El código del producto ya existe');
+            }
+            throw error;
+        }
     }
-  }
 
-  async findAllProducts(): Promise<Product[]> {
-    return await this.repository.find();
-  }
+    async findAllProducts(): Promise<ProductCatalogResponseDto[]> {
+        const products = await this.repository
+            .createQueryBuilder('product')
+            .leftJoin('product.seller', 'seller')
+            .select([
+                'product.id',
+                'product.name',
+                'product.imageUrl',
+                'product.price',
+                'seller.username',
+            ])
+            .getMany();
+
+        return products.map(p => ({
+            id: p.id,
+            name: p.name,
+            imageUrl: p.imageUrl,
+            price: Number(p.price),
+            seller: p.seller?.username ?? 'Vendedor desconocido',
+        }));
+    }
+    async findById(id: string): Promise<ProductDetailResponseDto | null> {
+        const product = await this.repository
+            .createQueryBuilder('product')
+            .leftJoin('product.seller', 'seller')
+            .select([
+                'product.id',
+                'product.name',
+                'product.description',
+                'product.price',
+                'product.platform',
+                'product.condition',
+                'product.imageUrl',
+                'product.trivia',
+                'seller.username',
+            ])
+            .where('product.id = :id', { id })
+            .getOne();
+
+        if (!product) return null;
+
+        return {
+            ...product,
+            price: Number(product.price),
+            seller: product.seller?.username ?? 'Vendedor desconocido',
+        };
+    }
+
+
 }
