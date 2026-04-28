@@ -1,12 +1,12 @@
 
 import { User } from '@/auth/entities/user.entity';
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    ManyToOne,
-    PrimaryGeneratedColumn,
-    UpdateDateColumn,
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 export enum Condition {
@@ -53,6 +53,9 @@ export class Product {
 
   @Column({ type: 'text', nullable: true })
   trivia?: string;
+
+  @Column({ type: 'text', nullable: true, name: 'youtube_url' })
+  youtubeUrl?: string;
 
   @ManyToOne(() => User, { eager: true })
   seller!: User;

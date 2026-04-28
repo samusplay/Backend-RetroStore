@@ -16,6 +16,9 @@ export const productDetailResponseSchema = z.object({
   price: z.number(),
   platform: z.string(),
   condition: z.string(),
+  //campos nuevos
+  category: z.string(), 
+  youtubeUrl: z.string().nullable().optional(),
   imageUrl: z.string().optional(),
   trivia: z.string().optional(),
   seller: z.string(),

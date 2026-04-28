@@ -78,6 +78,8 @@ export class ProductRepository {
                 'product.imageUrl',
                 'product.trivia',
                 'seller.username',
+                'product.category',
+                'product.youtubeUrl',
             ])
             .where('product.id = :id', { id })
             .getOne();
