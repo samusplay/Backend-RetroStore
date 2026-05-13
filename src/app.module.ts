@@ -1,10 +1,11 @@
 import { Logger, Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { getDatabaseConfig } from './config/database.config';
-import { ProductsModule } from './products/products.module';
 import { AuthModule } from './auth/auth.module';
 import { CollectionModule } from './collection/collection.module';
+import { getDatabaseConfig } from './config/database.config';
+import { PaymentsModule } from './payments/payments.module';
+import { ProductsModule } from './products/products.module';
 
 
 @Module({
@@ -21,6 +22,8 @@ import { CollectionModule } from './collection/collection.module';
     ProductsModule,
     AuthModule,
     CollectionModule,
+    PaymentsModule,
+    PaymentsModule
    
   ],
   controllers: [],
