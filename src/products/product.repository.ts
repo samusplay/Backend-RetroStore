@@ -13,6 +13,7 @@ export class ProductRepository {
         private readonly repository: Repository<Product>
     ) { }
 
+    // ── existente sin cambios ──
     async createProduct(
         createProductDto: CreateProductDto,
         imageUrl: string,
@@ -37,6 +38,7 @@ export class ProductRepository {
         }
     }
 
+    // ── existente — solo agregamos el filtro isActive ──
     async findAllProducts(category?: string): Promise<ProductCatalogResponseDto[]> {
         const query = this.repository
             .createQueryBuilder('product')
@@ -47,11 +49,11 @@ export class ProductRepository {
                 'product.imageUrl',
                 'product.price',
                 'seller.username',
-            ]);
+            ])
+            .where('product.isActive = :isActive', { isActive: true }); // ← único cambio aquí
 
-        // Si viene categoría la aplicamos como filtro
         if (category) {
-            query.where('product.category = :category', { category });
+            query.andWhere('product.category = :category', { category }); // ← andWhere en lugar de where
         }
 
         const products = await query.getMany();
@@ -64,6 +66,8 @@ export class ProductRepository {
             seller: p.seller?.username ?? 'Vendedor desconocido',
         }));
     }
+
+    // ── existente sin cambios ──
     async findById(id: string): Promise<ProductDetailResponseDto | null> {
         const product = await this.repository
             .createQueryBuilder('product')
@@ -93,5 +97,46 @@ export class ProductRepository {
         };
     }
 
+    // ── NUEVOS ─────────────────────────────────────────────────────────────
+
+    async findMyProducts(sellerId: string): Promise<Product[]> {
+        return await this.repository
+            .createQueryBuilder('product')
+            .where('product.seller = :sellerId', { sellerId })
+            .select([
+                'product.id',
+                'product.name',
+                'product.code',
+                'product.price',
+                'product.category',
+                'product.condition',
+                'product.isActive',
+                'product.imageUrl',
+                'product.platform',
+                'product.createdAt',
+            ])
+            .orderBy('product.createdAt', 'DESC')
+            .getMany();
+    }
+
+    async updateProduct(id: string, data: Partial<Product>): Promise<Product> {
+        await this.repository.update(id, data);
+        return await this.repository.findOneOrFail({ where: { id } });
+    }
+
+    async deactivateProduct(id: string): Promise<void> {
+        await this.repository.update(id, { isActive: false });
+    }
+
+    async activateProduct(id: string): Promise<void> {
+        await this.repository.update(id, { isActive: true });
+    }
+
+    async findRawById(id: string): Promise<Product | null> {
+        return await this.repository.findOne({
+            where: { id },
+            relations: ['seller'],
+        });
+    }
 
 }

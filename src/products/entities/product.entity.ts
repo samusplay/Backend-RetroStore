@@ -57,6 +57,10 @@ export class Product {
   @Column({ type: 'text', nullable: true, name: 'youtube_url' })
   youtubeUrl?: string;
 
+  //Nuevo campo si esta activo
+  @Column({ type: 'boolean', default: true, name: 'is_active' })
+  isActive!: boolean;
+
   @ManyToOne(() => User, { eager: true })
   seller!: User;
 
