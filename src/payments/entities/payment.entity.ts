@@ -44,6 +44,10 @@ export class Payment {
   @Column({ type: 'uuid' })
   buyerId!: string;
 
+  //campo para usar la pasarela de stripe
+  @Column({ type: 'varchar', nullable: true, name: 'stripe_payment_intent_id' })
+  stripePaymentIntentId?: string;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 }

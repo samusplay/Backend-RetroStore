@@ -16,6 +16,7 @@ import { PaymentsService } from './payments.service';
       inject: [ConfigService],
       useFactory: getJwtConfig,
     }),
+    ConfigModule,
   ],
   providers: [PaymentsRepository, PaymentsService],
   controllers: [PaymentsController],

@@ -3,12 +3,14 @@
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Param,
   Patch,
   Post,
-  UseGuards,
+  Req,
+  UseGuards
 } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -22,11 +24,25 @@ import { UpdatePaymentSchema } from './dto/update-payment.dto';
 import { PaymentsService } from './payments.service';
 
 @Controller('payments')
-@UseGuards(JwtGuard)
 export class PaymentsController {
-  constructor(private readonly paymentsService: PaymentsService) {}
+  constructor(private readonly paymentsService: PaymentsService) { }
 
+  // ── Webhook de Stripe — SIN JwtGuard, Stripe no manda token ──
+  @Post('webhook')
+  @HttpCode(HttpStatus.OK)
+  async stripeWebhook(
+    @Req() req: any, // ← any evita el problema de tipos decorados
+    @Headers('stripe-signature') signature: string,
+  ) {
+    await this.paymentsService.handleStripeWebhook(
+      req.rawBody,
+      signature,
+    );
+    return { received: true };
+  }
+  // ── Todos los demás endpoints necesitan JWT ──
   @Post()
+  @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.CREATED)
   create(
     @Body(new ZodValidationPipe(CreatePaymentSchema)) dto: CreatePaymentDto,
@@ -37,32 +53,34 @@ export class PaymentsController {
   }
 
   @Get()
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtGuard, RolesGuard)
   @Roles('SELLER')
   findAll() {
     return this.paymentsService.findAll();
   }
 
   @Get('my-payments')
+  @UseGuards(JwtGuard)
   getMyPayments(@CurrentUser() user: any) {
     const buyerId: string = user.sub;
     return this.paymentsService.getMyPayments(buyerId);
   }
 
   @Get('product/:productId')
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtGuard, RolesGuard)
   @Roles('SELLER')
   getByProduct(@Param('productId') productId: string) {
     return this.paymentsService.getPaymentsByProduct(productId);
   }
 
   @Get(':id')
+  @UseGuards(JwtGuard)
   findOne(@Param('id') id: string) {
     return this.paymentsService.findOneById(id);
   }
 
   @Patch(':id/status')
-  @UseGuards(RolesGuard)
+  @UseGuards(JwtGuard, RolesGuard)
   @Roles('SELLER')
   updateStatus(
     @Param('id') id: string,
@@ -72,6 +90,7 @@ export class PaymentsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   cancel(
     @Param('id') id: string,
