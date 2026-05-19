@@ -38,8 +38,9 @@ export class Payment {
   })
   method!: PaymentMethod;
 
-  @Column({ type: 'uuid' })
-  productId!: string;
+  //va recibir un array de strings con muchos productos
+  @Column({ type: 'uuid', array: true, name: 'product_ids', nullable: true })
+  productIds!: string[];
 
   @Column({ type: 'uuid' })
   buyerId!: string;

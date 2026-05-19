@@ -24,10 +24,10 @@ class PaymentBuilder {
     return this;
   }
 
-  setProductId(id: string) {
-    this.payment.productId = id;
-    return this;
-  }
+  setProductIds(ids: string[]) {
+  this.payment.productIds = ids;
+  return this;
+}
 
   setBuyerId(id: string) {
     this.payment.buyerId = id;
@@ -73,7 +73,7 @@ export class PaymentsService {
       currency: 'usd',
       payment_method_types: ['card'],
       metadata: {
-        productId: dto.productId,
+        productIds: dto.productIds.join(','),
         buyerId,
       },
     });
@@ -82,7 +82,7 @@ export class PaymentsService {
     const paymentData = new PaymentBuilder()
       .setAmount(dto.amount)
       .setMethod(dto.method as PaymentMethod)
-      .setProductId(dto.productId)
+      .setProductIds(dto.productIds)
       .setBuyerId(buyerId)
       .setStatus(PaymentStatus.PENDING)
       .setStripePaymentIntentId(paymentIntent.id)
@@ -115,7 +115,7 @@ export class PaymentsService {
   }
 
   async getPaymentsByProduct(productId: string): Promise<Payment[]> {
-    return this.paymentsRepository.findByProductId(productId);
+    return this.paymentsRepository.getPaymentsByProduct(productId);
   }
 
   async updateStatus(id: string, dto: UpdatePaymentDto): Promise<Payment> {

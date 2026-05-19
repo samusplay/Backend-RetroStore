@@ -30,12 +30,13 @@ export class PaymentsRepository {
     });
   }
 
-  async findByProductId(productId: string): Promise<Payment[]> {
-    return this.repo.find({
-      where: { productId },
-      order: { createdAt: 'DESC' },
-    });
-  }
+  async getPaymentsByProduct(productId: string): Promise<Payment[]> {
+  return this.repo
+    .createQueryBuilder('payment')
+    .where(':productId = ANY(payment.product_ids)', { productId })
+    .orderBy('payment.created_at', 'DESC')
+    .getMany();
+}
 
   async updateStatus(id: string, status: PaymentStatus): Promise<Payment | null> {
     await this.repo.update(id, { status });
